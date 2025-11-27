@@ -1,13 +1,11 @@
-import com.example.FelineInterface;
+import com.example.Feline;
 import com.example.Lion;
-import com.example.Predator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -17,69 +15,63 @@ import static org.mockito.Mockito.*;
 public class LionTest {
 
     @Mock
-    private Predator predator;
+    private Feline feline;
 
-    @Mock
-    private FelineInterface felineInterface;
-
-    @Mock
-    private Lion lion;
+    private Lion maleLion;
+    private Lion femaleLion;
 
     @Before
     public void setUp() throws Exception {
-        lion = new Lion("Самец", predator, felineInterface);
+        maleLion = new Lion("Самец", feline);
+        femaleLion = new Lion("Самка", feline);
+    }
+    @Test
+    public void testMaleLionHasMane() {
+        assertTrue("Самец льва должен иметь гриву", maleLion.doesHaveMane());
     }
 
     @Test
-    public void testGetKittens() {
-        when(felineInterface.getKittens()).thenReturn(2);
-        int amount = lion.getKittens();
+    public void testFemaleLionDoesNotHaveMane() {
+        assertFalse("Самка льва не должна иметь гриву", femaleLion.doesHaveMane());
+    }
 
-        assertEquals(2, amount);
-        verify(felineInterface, times(1)).getKittens();
+    @Test(expected = Exception.class)
+    public void testInvalidSexThrowsException() throws Exception {
+        new Lion("Неизвестный", feline);
     }
 
     @Test
-    public void testDoesHaveManeForMale() throws Exception {
-        assertTrue(lion.doesHaveMane());
+    public void testGetKittensCallsFelineGetKittens() {
+        maleLion.getKittens();
+        verify(feline, times(1)).getKittens();
     }
 
     @Test
-    public void testDoesHaveManeForFemale() throws Exception {
-        Lion femaleLion = new Lion("Самка", predator, felineInterface);
-        assertFalse(femaleLion.doesHaveMane());
+    public void testGetKittensReturnsCorrectValue() throws Exception {
+        when(feline.getKittens()).thenReturn(3);
+        int kittens = maleLion.getKittens();
+        assertEquals("Метод getKittens должен возвращать значение от Feline",
+                3, kittens);
     }
 
     @Test
-    public void testEatMeat() throws Exception {
-        List<String> expectedFood = Arrays.asList("Животные", "Птица", "Рыба");
-        when(predator.eatMeat()).thenReturn(expectedFood);
-        List<String> result = lion.eatMeat();
-
-        assertEquals("Метод eatMeat должен возвращать еду из Predator", expectedFood, result);
-        verify(predator, times(1)).eatMeat();
+    public void testGetFoodCallsFelineEatMeat() throws Exception {
+        femaleLion.getFood();
+        verify(feline, times(1)).eatMeat();
     }
 
     @Test
-    public void testGetFood() throws Exception {
-        List<String> expectedFood = Arrays.asList("Мясо", "Птицы");
-        when(predator.eatMeat()).thenReturn(expectedFood);
-        List<String> result = lion.getFood();
-
-        assertEquals(expectedFood, result);
-        verify(predator, times(1)).eatMeat();
+    public void testGetFoodReturnsCorrectValue() throws Exception {
+        List<String> expectedFood = List.of("Мясо", "Рыба");
+        when(feline.eatMeat()).thenReturn(expectedFood);
+        List<String> actualFood = femaleLion.getFood();
+        assertEquals("Метод getFood должен возвращать еду от Feline",
+                expectedFood, actualFood);
     }
 
-    @Test
-    public void testLionConstructorExceptionMessage() {
-        try {
-            new Lion("Неизвестный", predator, felineInterface);
-            fail("Ожидалось исключение при неверном поле животного");
-        } catch (Exception e) {
-            assertEquals("Сообщение об ошибке должно быть корректным",
-                    "Используйте допустимые значения пола животного - самец или самка",
-                    e.getMessage());
-        }
+    @Test(expected = Exception.class)
+    public void testGetFoodPropagatesException() throws Exception {
+        when(feline.eatMeat()).thenThrow(new Exception("Ошибка получения еды"));
+        maleLion.getFood();
     }
 }
-

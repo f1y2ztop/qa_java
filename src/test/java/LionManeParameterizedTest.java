@@ -1,6 +1,5 @@
-import com.example.FelineInterface;
+import com.example.Feline;
 import com.example.Lion;
-import com.example.Predator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -13,24 +12,21 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
-public class LionParameterizedTest {
+public class LionManeParameterizedTest {
 
     @Mock
-    private Predator predator;
+    private Feline feline;
 
-    @Mock
-    private FelineInterface felineInterface;
+    private final String sex;
+    private final boolean expectedHasMane;
 
-    private String sex;
-    private boolean expectedHasMane;
-
-    public LionParameterizedTest(String sex, boolean expectedHasMane) {
+    public LionManeParameterizedTest(String sex, boolean expectedHasMane) {
         this.sex = sex;
         this.expectedHasMane = expectedHasMane;
         MockitoAnnotations.openMocks(this);
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name="Пол {0}, Наличие гривы {1}")
     public static Collection<Object[]> testData() {
         return Arrays.asList(new Object[][]{
                 {"Самец", true},
@@ -40,10 +36,8 @@ public class LionParameterizedTest {
 
     @Test
     public void testDoesHaveManeForDifferentSex() throws Exception {
-        Lion lion = new Lion(sex, predator, felineInterface);
+        Lion lion = new Lion(sex, feline);
         boolean result = lion.doesHaveMane();
-
-        assertEquals("Для пола '" + sex + "' грива должна быть: " + expectedHasMane,
-                expectedHasMane, result);
+        assertEquals(expectedHasMane, result);
     }
 }

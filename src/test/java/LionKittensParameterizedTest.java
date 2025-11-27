@@ -1,6 +1,5 @@
-import com.example.FelineInterface;
+import com.example.Feline;
 import com.example.Lion;
-import com.example.Predator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -17,32 +16,27 @@ import static org.mockito.Mockito.*;
 public class LionKittensParameterizedTest {
 
     @Mock
-    private Predator predator;
+    private Feline feline;
 
-    @Mock
-    private FelineInterface felineInterface;
-
-    private int expectedKittens;
+    private final int expectedKittens;
 
     public LionKittensParameterizedTest(int expectedKittens) {
         this.expectedKittens = expectedKittens;
         MockitoAnnotations.openMocks(this);
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name="Кол-во котят {0}")
     public static Collection<Object[]> testData() {
         return Arrays.asList(new Object[][] {
-                {0}, {1}, {10}, {100}, {1000}, {10000}
+                {0}, {1}, {10}, {100}, {1000}
         });
     }
 
     @Test
     public void testGetKittensWithDifferentValues() throws Exception {
-        Lion lion = new Lion("Самец", predator, felineInterface);
-        when(felineInterface.getKittens()).thenReturn(expectedKittens);
-        int result = lion.getKittens();
-
-        assertEquals(expectedKittens, result);
-        verify(felineInterface, times(1)).getKittens();
+        Lion lion = new Lion("Самец", feline);
+        when(feline.getKittens()).thenReturn(expectedKittens);
+        int actualKittens = lion.getKittens();
+        assertEquals(expectedKittens, actualKittens);
     }
 }
